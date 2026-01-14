@@ -1,4 +1,4 @@
-package com.blog01.backend.post;
+package com.blog01.backend.notification;
 
 import com.blog01.backend.user.User;
 import jakarta.persistence.*;
@@ -9,19 +9,18 @@ import java.time.LocalDateTime;
 @Entity
 @Getter @Setter
 @NoArgsConstructor @AllArgsConstructor @Builder
-public class Post {
+public class Notification {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(columnDefinition = "TEXT")
-    private String content;
-
-    private String mediaUrl;
-
     @ManyToOne
-    private User author;
+    private User user;
+
+    private String message;
+
+    private boolean read = false;
 
     private LocalDateTime createdAt = LocalDateTime.now();
 }
