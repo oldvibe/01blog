@@ -1,8 +1,8 @@
 package com.blog01.backend.post;
 
-import com.blog01.backend.user.User;
-import com.blog01.backend.user.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -10,24 +10,10 @@ import org.springframework.stereotype.Service;
 public class PostService {
 
     private final PostRepository postRepository;
-    private final UserRepository userRepository;
 
-    public void createPost(String content, String email) {
-
-        User user = userRepository.findByEmail(email)
-                .orElseThrow();
-
-        Post post = Post.builder()
-                .content(content)
-                .author(user)
-                .build();
-
-        postRepository.save(post);
-    }
     public Page<Post> getFeed(int page, int size) {
-        return postRepository.findAllByOrderByCreatedAtDesc(
+        return postRepository.findAll(
                 PageRequest.of(page, size)
         );
     }
-
 }
