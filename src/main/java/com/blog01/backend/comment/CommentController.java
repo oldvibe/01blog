@@ -5,6 +5,8 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/posts")
 @RequiredArgsConstructor
@@ -12,12 +14,37 @@ public class CommentController {
 
     private final CommentService commentService;
 
-    @PostMapping("/{postId}/comments")
-    public void comment(
+    /**
+     * 🔹 Get comments of a post
+     */
+    @GetMapping("/{postId}/comments")
+    public List<CommentResponse> getComments(
             @PathVariable Long postId,
-            @RequestBody String content,
             @AuthenticationPrincipal UserDetails user
     ) {
-        commentService.addComment(postId, content, user.getUsername());
+        return commentService.getComments(postId, user.getUsername());
+    }
+
+    /**
+     * 🔹 Add comment
+     */
+    @PostMapping("/{postId}/comments")
+    public CommentResponse addComment(
+            @PathVariable Long postId,
+            @RequestBody CommentRequest request,
+            @AuthenticationPrincipal UserDetails user
+    ) {
+        return commentService.addComment(postId, request.getContent(), user.getUsername());
+    }
+
+    /**
+     * 🔹 Delete comment (owner or admin)
+     */
+    @DeleteMapping("/comments/{commentId}")
+    public void deleteComment(
+            @PathVariable Long commentId,
+            @AuthenticationPrincipal UserDetails user
+    ) {
+        commentService.deleteComment(commentId, user.getUsername());
     }
 }
