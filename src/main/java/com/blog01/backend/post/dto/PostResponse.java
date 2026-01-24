@@ -5,7 +5,14 @@ import java.time.LocalDateTime;
 public record PostResponse(
         Long id,
         String content,
-        String author,
+        String mediaUrl,
+
+        Long authorId,
+        String authorUsername,
+
         LocalDateTime createdAt,
-        long likes
+
+        long likes,
+        boolean likedByMe,
+        boolean mine
 ) {}

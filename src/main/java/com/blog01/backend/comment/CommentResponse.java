@@ -9,5 +9,7 @@ public class CommentResponse {
 
     private Long id;
     private String content;
+    private String author;
     private boolean owner;
+    private LocalDateTime createdAt;
 }

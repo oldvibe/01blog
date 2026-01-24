@@ -15,10 +15,16 @@ public class PostLikeService {
     private final PostRepository postRepository;
     private final UserRepository userRepository;
 
-    public void toggleLike(Long postId, String email) {
+    /**
+     * 🔹 Like / Unlike post (toggle)
+     */
+    public void toggleLike(Long postId, String username) {
 
-        User user = userRepository.findByEmail(email).orElseThrow();
-        Post post = postRepository.findById(postId).orElseThrow();
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new RuntimeException("Post not found"));
 
         likeRepository.findByUserAndPost(user, post)
                 .ifPresentOrElse(
@@ -30,5 +36,16 @@ public class PostLikeService {
                                         .build()
                         )
                 );
+    }
+
+    /**
+     * 🔹 Count likes of post (useful for feed)
+     */
+    public long countLikes(Long postId) {
+
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new RuntimeException("Post not found"));
+
+        return likeRepository.countByPost(post);
     }
 }

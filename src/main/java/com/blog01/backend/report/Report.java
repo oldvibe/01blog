@@ -4,23 +4,29 @@ import com.blog01.backend.user.User;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Getter @Setter
-@NoArgsConstructor @AllArgsConstructor @Builder
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class Report {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
-    private User reporter;
+    private String reason;
 
-    private String targetType; // POST or USER
+    private String targetType;
 
     private Long targetId;
 
-    private String reason;
-
     private boolean resolved = false;
+
+    private LocalDateTime createdAt = LocalDateTime.now();
+
+    @ManyToOne
+    private User reporter;
 }

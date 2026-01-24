@@ -1,16 +1,3 @@
-package com.blog01.backend.comment;
-
-import com.blog01.backend.post.Post;
-import com.blog01.backend.post.PostRepository;
-import com.blog01.backend.user.User;
-import com.blog01.backend.user.UserRepository;
-import lombok.RequiredArgsConstructor;
-import org.springframework.security.access.AccessDeniedException;
-import org.springframework.stereotype.Service;
-
-import java.util.List;
-import java.util.stream.Collectors;
-
 @Service
 @RequiredArgsConstructor
 public class CommentService {
@@ -22,27 +9,33 @@ public class CommentService {
     /**
      * 🔹 Get comments of post
      */
-    public List<CommentResponse> getComments(Long postId, String email) {
+    public List<CommentResponse> getComments(Long postId, String username) {
 
-        User currentUser = userRepository.findByEmail(email).orElseThrow();
+        User currentUser = userRepository.findByUsername(username)
+                .orElseThrow();
 
         return commentRepository.findAllByPostId(postId)
                 .stream()
                 .map(comment -> new CommentResponse(
                         comment.getId(),
                         comment.getContent(),
-                        comment.getAuthor().getId().equals(currentUser.getId())
+                        comment.getAuthor().getUsername(),
+                        comment.getAuthor().getId().equals(currentUser.getId()),
+                        comment.getCreatedAt()
                 ))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     /**
      * 🔹 Add comment
      */
-    public CommentResponse addComment(Long postId, String content, String email) {
+    public CommentResponse addComment(Long postId, String content, String username) {
 
-        User user = userRepository.findByEmail(email).orElseThrow();
-        Post post = postRepository.findById(postId).orElseThrow();
+        User user = userRepository.findByUsername(username)
+                .orElseThrow();
+
+        Post post = postRepository.findById(postId)
+                .orElseThrow();
 
         Comment comment = Comment.builder()
                 .content(content)
@@ -55,17 +48,22 @@ public class CommentService {
         return new CommentResponse(
                 comment.getId(),
                 comment.getContent(),
-                true
+                user.getUsername(),
+                true,
+                comment.getCreatedAt()
         );
     }
 
     /**
      * 🔹 Delete comment (owner or admin)
      */
-    public void deleteComment(Long commentId, String email) {
+    public void deleteComment(Long commentId, String username) {
 
-        User user = userRepository.findByEmail(email).orElseThrow();
-        Comment comment = commentRepository.findById(commentId).orElseThrow();
+        User user = userRepository.findByUsername(username)
+                .orElseThrow();
+
+        Comment comment = commentRepository.findById(commentId)
+                .orElseThrow();
 
         boolean isOwner = comment.getAuthor().getId().equals(user.getId());
         boolean isAdmin = user.getRole().name().equals("ROLE_ADMIN");

@@ -6,7 +6,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -18,9 +17,9 @@ public class FollowService {
     /**
      * 🔹 Follow / Unfollow (toggle)
      */
-    public void toggleFollow(Long targetUserId, String currentUserEmail) {
+    public void toggleFollow(Long targetUserId, String currentUsername) {
 
-        User currentUser = userRepository.findByEmail(currentUserEmail)
+        User currentUser = userRepository.findByUsername(currentUsername)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         User targetUser = userRepository.findById(targetUserId)
@@ -46,9 +45,9 @@ public class FollowService {
     /**
      * 🔹 Users that I follow
      */
-    public List<FollowUserResponse> getMyFollowing(String email) {
+    public List<FollowUserResponse> getMyFollowing(String username) {
 
-        User me = userRepository.findByEmail(email)
+        User me = userRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         return followRepository.findAllByFollower(me)
@@ -57,15 +56,15 @@ public class FollowService {
                         follow.getFollowing().getId(),
                         follow.getFollowing().getUsername()
                 ))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     /**
      * 🔹 Users that follow me
      */
-    public List<FollowUserResponse> getMyFollowers(String email) {
+    public List<FollowUserResponse> getMyFollowers(String username) {
 
-        User me = userRepository.findByEmail(email)
+        User me = userRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         return followRepository.findAllByFollowing(me)
@@ -74,6 +73,6 @@ public class FollowService {
                         follow.getFollower().getId(),
                         follow.getFollower().getUsername()
                 ))
-                .collect(Collectors.toList());
+                .toList();
     }
 }

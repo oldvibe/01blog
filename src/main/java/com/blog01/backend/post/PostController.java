@@ -1,5 +1,9 @@
 package com.blog01.backend.post;
 
+import com.blog01.backend.post.dto.PostRequest;
+import com.blog01.backend.post.dto.PostResponse;
+import com.blog01.backend.security.UserPrincipal;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -13,21 +17,22 @@ public class PostController {
     private final PostService postService;
 
     /**
-     * 🔹 Public feed (all posts paginated)
+     * 🔹 Public feed (all posts)
      */
     @GetMapping
-    public Page<Post> getAll(
+    public Page<PostResponse> getAll(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size
+            @RequestParam(defaultValue = "10") int size,
+            @AuthenticationPrincipal UserPrincipal user
     ) {
-        return postService.getFeed(page, size);
+        return postService.getFeed(user, page, size);
     }
 
     /**
      * 🔹 Feed of users I follow
      */
     @GetMapping("/subscriptions")
-    public Page<Post> getSubscriptionsFeed(
+    public Page<PostResponse> getSubscriptionsFeed(
             @AuthenticationPrincipal UserPrincipal user,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
@@ -39,33 +44,23 @@ public class PostController {
      * 🔹 Create new post
      */
     @PostMapping
-    public Post createPost(
+    public PostResponse createPost(
             @AuthenticationPrincipal UserPrincipal user,
-            @RequestBody PostRequest request
+            @Valid @RequestBody PostRequest request
     ) {
-        return postService.createPost(user.getId(), request);
+        return postService.create(user.getId(), request);
     }
-    
-    @PostMapping
-    public void createPost(
-            @RequestParam String content,
-            @RequestParam(required = false) MultipartFile media,
-            @AuthenticationPrincipal UserDetails user
-    ) {
-        postService.create(content, media, user.getUsername());
-    }
-    
 
     /**
      * 🔹 Edit my post
      */
     @PutMapping("/{id}")
-    public Post updatePost(
+    public PostResponse updatePost(
             @PathVariable Long id,
             @AuthenticationPrincipal UserPrincipal user,
-            @RequestBody PostRequest request
+            @Valid @RequestBody PostRequest request
     ) {
-        return postService.updatePost(id, user.getId(), request);
+        return postService.update(id, user.getId(), request);
     }
 
     /**
@@ -76,6 +71,6 @@ public class PostController {
             @PathVariable Long id,
             @AuthenticationPrincipal UserPrincipal user
     ) {
-        postService.deletePost(id, user.getId());
+        postService.delete(id, user.getId());
     }
 }

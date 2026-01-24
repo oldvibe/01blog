@@ -1,5 +1,6 @@
 package com.blog01.backend.notification;
 
+import com.blog01.backend.notification.dto.NotificationResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -14,10 +15,24 @@ public class NotificationController {
 
     private final NotificationService notificationService;
 
+    /**
+     * 🔹 Get my notifications
+     */
     @GetMapping
-    public List<Notification> myNotifications(
+    public List<NotificationResponse> myNotifications(
             @AuthenticationPrincipal UserDetails user
     ) {
         return notificationService.getMyNotifications(user.getUsername());
+    }
+
+    /**
+     * 🔹 Mark notification as read
+     */
+    @PostMapping("/{id}/read")
+    public void markAsRead(
+            @PathVariable Long id,
+            @AuthenticationPrincipal UserDetails user
+    ) {
+        notificationService.markAsRead(id, user.getUsername());
     }
 }
